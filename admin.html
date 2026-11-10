@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة التحكم | معرض أبو رجيلة للأدوات المنزلية</title>
+
+  <!-- Google Font: Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- PapaParse for CSV import -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <!-- Shared CSS Styles -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="admin-layout">
+    <!-- ==========================================================================
+         Admin Sidebar
+         ========================================================================== -->
+    <aside id="adminSidebar" class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-logo">
+          <div class="store-brand-badge" style="transform:none; box-shadow:none; padding:0.35rem 0.65rem; min-width:auto;">
+            <svg class="brand-roof-icon" viewBox="0 0 24 16" style="width:20px; height:15px;">
+              <path d="M12 2L2 11h3v4h14v-4h3L12 2z" />
+            </svg>
+            <span class="brand-arabic-name" style="font-size:1rem;">أبو رجيلة</span>
+            <span class="brand-english-sub" style="font-size:0.5rem;">ABURJELAH</span>
+          </div>
+          <div style="display:flex; flex-direction:column;">
+            <span style="font-weight:800; font-size:1.05rem; color:#FFFFFF;">لوحة الإدارة</span>
+            <span style="font-size:0.75rem; color:#94A3B8;">إدارة الكتالوج الرقمي</span>
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="closeMobileSidebar()" style="display:none;" id="sidebarCloseMobile">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Navigation Tabs List -->
+      <nav class="admin-nav">
+        <div class="admin-nav-item active" data-tab="dashboard">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>الرئيسية والإحصائيات</span>
+        </div>
+        <div class="admin-nav-item" data-tab="products">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          <span>إدارة المنتجات</span>
+        </div>
+        <div class="admin-nav-item" data-tab="categories">
+          <i class="fa-solid fa-layer-group"></i>
+          <span>إدارة الأقسام</span>
+        </div>
+        <div class="admin-nav-item" data-tab="banners">
+          <i class="fa-solid fa-image"></i>
+          <span>البانر الإعلاني</span>
+        </div>
+        <div class="admin-nav-item" data-tab="settings">
+          <i class="fa-solid fa-gear"></i>
+          <span>إعدادات المتجر</span>
+        </div>
+      </nav>
+
+      <div class="admin-sidebar-footer">
+        <a href="index.html" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; background:#1E293B; color:#FFFFFF; border-color:#334155;">
+          <i class="fa-solid fa-store"></i> معاينة المتجر مباشرة
+        </a>
+      </div>
+    </aside>
+
+    <!-- ==========================================================================
+         Admin Main Area
+         ========================================================================== -->
+    <div class="admin-main">
+      <!-- Topbar -->
+      <header class="admin-topbar">
+        <div style="display:flex; align-items:center; gap:1rem;">
+          <button class="admin-menu-toggle" onclick="toggleMobileSidebar()" aria-label="القائمة">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <h1 class="admin-topbar-title">لوحة تحكم معرض أبو رجيلة</h1>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <a href="index.html" target="_blank" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> عرض المتجر
+          </a>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="admin-content-area">
+
+        <!-- ====================================================================
+             TAB 1: Dashboard Stats
+             ==================================================================== -->
+        <div id="tab-dashboard" class="admin-tab-pane active">
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">إجمالي المنتجات</span>
+                <span id="statTotalProducts" class="stat-value">0</span>
+              </div>
+              <div class="stat-icon primary">
+                <i class="fa-solid fa-box"></i>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">أقسام المتجر</span>
+                <span id="statTotalCategories" class="stat-value">0</span>
+              </div>
+              <div class="stat-icon accent">
+                <i class="fa-solid fa-tags"></i>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">منتجات نفدت كميتها</span>
+                <span id="statOutOfStock" class="stat-value">0</span>
+              </div>
+              <div class="stat-icon danger">
+                <i class="fa-solid fa-circle-exclamation"></i>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">إجمالي الزيارات</span>
+                <span id="statStoreViews" class="stat-value">0</span>
+              </div>
+              <div class="stat-icon success">
+                <i class="fa-solid fa-eye"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Recent Summary -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2 class="admin-card-title"><i class="fa-solid fa-bolt" style="color:var(--accent);"></i> إجراءات سريعة</h2>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+              <button class="btn btn-primary btn-sm" onclick="openAddProductModal()">
+                <i class="fa-solid fa-plus"></i> إضافة منتج جديد
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="openCsvImportModal()">
+                <i class="fa-solid fa-file-csv"></i> استيراد ملف CSV
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="exportProductsToJson()">
+                <i class="fa-solid fa-download"></i> تصدير نسخة احتياطية
+              </button>
+              <button class="btn btn-whatsapp btn-sm" onclick="window.open('https://wa.me/201554699528', '_blank')">
+                <i class="fa-brands fa-whatsapp"></i> فتح واتساب المتجر
+              </button>
+            </div>
+          </div>
+
+          <!-- Recent Products Preview Table -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2 class="admin-card-title"><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);"></i> أحدث المنتجات المضافة</h2>
+              <button class="btn btn-secondary btn-sm" onclick="switchAdminTab('products')">عرض كل المنتجات</button>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width:60px;">الصورة</th>
+                    <th>اسم المنتج</th>
+                    <th>القسم</th>
+                    <th>السعر</th>
+                    <th>حالة التوفر</th>
+                  </tr>
+                </thead>
+                <tbody id="recentProductsTableBody">
+                  <!-- Rendered dynamically by admin.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====================================================================
+             TAB 2: Products Management
+             ==================================================================== -->
+        <div id="tab-products" class="admin-tab-pane">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div style="display:flex; align-items:center; gap:0.75rem;">
+                <h2 class="admin-card-title"><i class="fa-solid fa-boxes-stacked" style="color:var(--primary);"></i> قائمة المنتجات</h2>
+                <span id="productsTableCount" class="badge badge-primary">إجمالي 20 منتج</span>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                <button class="btn btn-primary btn-sm" onclick="openAddProductModal()">
+                  <i class="fa-solid fa-plus"></i> إضافة منتج جديد
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="openCsvImportModal()">
+                  <i class="fa-solid fa-file-csv"></i> استيراد ملف CSV
+                </button>
+                <button id="bulkDeleteBtn" class="btn btn-danger btn-sm" disabled onclick="deleteSelectedProducts()">
+                  <i class="fa-solid fa-trash-can"></i> حذف المحدد <span id="bulkSelectedCount"></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Table Filter Toolbar -->
+            <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.25rem;">
+              <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+                <div style="flex:1; min-width:240px; position:relative;">
+                  <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-muted);"></i>
+                  <input type="text" id="productSearchInput" class="form-control" style="padding-right:2.5rem;" placeholder="بحث باسم المنتج، القسم أو الكود..." />
+                </div>
+                <div style="min-width:180px;">
+                  <select id="productCategoryFilter" class="form-control">
+                    <option value="all">جميع الأقسام</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Products Table -->
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width:40px;">
+                      <input type="checkbox" id="selectAllProducts" title="تحديد الكل" />
+                    </th>
+                    <th style="width:60px;">الصورة</th>
+                    <th>اسم المنتج</th>
+                    <th>القسم</th>
+                    <th>السعر الحالي</th>
+                    <th>حالة المخزون</th>
+                    <th style="width:100px;">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                  <!-- Rendered dynamically by admin.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====================================================================
+             TAB 3: Categories Management
+             ==================================================================== -->
+        <div id="tab-categories" class="admin-tab-pane">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2 class="admin-card-title"><i class="fa-solid fa-layer-group" style="color:var(--primary);"></i> أقسام وتصنيفات المتجر</h2>
+              <button class="btn btn-primary btn-sm" onclick="openAddCategoryModal()">
+                <i class="fa-solid fa-plus"></i> إضافة قسم جديد
+              </button>
+            </div>
+
+            <div id="categoriesGridContainer" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
+              <!-- Rendered dynamically by admin.js -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ====================================================================
+             TAB 4: Banner / Slider Management
+             ==================================================================== -->
+        <div id="tab-banners" class="admin-tab-pane">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2 class="admin-card-title"><i class="fa-solid fa-image" style="color:var(--primary);"></i> شرائح البانر الإعلاني الرئيسي</h2>
+              <button class="btn btn-primary btn-sm" onclick="openAddBannerModal()">
+                <i class="fa-solid fa-plus"></i> إضافة شريحة بنر
+              </button>
+            </div>
+            <div id="bannersListContainer">
+              <!-- Rendered dynamically by admin.js -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ====================================================================
+             TAB 5: Store Settings
+             ==================================================================== -->
+        <div id="tab-settings" class="admin-tab-pane">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2 class="admin-card-title"><i class="fa-solid fa-gear" style="color:var(--primary);"></i> إعدادات وهوية المتجر</h2>
+            </div>
+
+            <form id="storeSettingsForm" onsubmit="saveStoreSettings(event)">
+              <div class="form-grid two-cols" style="margin-bottom:1.25rem;">
+                <div class="form-group">
+                  <label class="form-label">اسم المتجر بالعربية:</label>
+                  <input type="text" id="settingsStoreName" class="form-control" value="أبو رجيلة" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">الاسم بالإنجليزية (السطر الفرعي):</label>
+                  <input type="text" id="settingsStoreSubtitle" class="form-control" value="ABURJELAH" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">رقم هاتف الواتساب لاستقبال الطلبات (مع كود الدولة):</label>
+                  <input type="text" id="settingsWhatsapp" class="form-control" value="201554699528" placeholder="201554699528" required />
+                  <small style="color:var(--text-muted); font-size:0.75rem;">مثال لمصر: 201554699528 بدون أصفار أو فواصل</small>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">رمز العملة:</label>
+                  <input type="text" id="settingsCurrency" class="form-control" value="جنيه" required />
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:1.25rem;">
+                <label class="form-label">وصف المتجر ومجال العمل:</label>
+                <textarea id="settingsStoreDesc" class="form-control" rows="3"></textarea>
+              </div>
+
+              <div class="form-group" style="margin-bottom:1.5rem;">
+                <label class="form-label">نص تذييل رسالة الواتساب التلقائية:</label>
+                <input type="text" id="settingsFooter" class="form-control" value="معرض أبو رجيلة للأدوات المنزلية" />
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                <button type="submit" class="btn btn-primary btn-lg">
+                  <i class="fa-solid fa-floppy-disk"></i> حفظ كافة الإعدادات
+                </button>
+
+                <button type="button" class="btn btn-secondary btn-sm" onclick="resetAllStoreDataToDefaults()" style="color:var(--danger); border-color:#FCA5A5;">
+                  <i class="fa-solid fa-rotate-left"></i> إعادة ضبط البيانات النموذجية للمتجر
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 1: Add / Edit Product Modal
+       ========================================================================== -->
+  <div id="productEditModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-dialog" style="max-width:650px;">
+      <button class="modal-close-btn" onclick="closeProductModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div style="padding:1.5rem;">
+        <h3 id="productModalTitle" style="font-size:1.25rem; font-weight:800; margin-bottom:1.25rem; color:var(--text-main);">
+          إضافة منتج جديد
+        </h3>
+
+        <form id="productForm" onsubmit="saveProductFromForm(event)">
+          <input type="hidden" id="productFormId" />
+
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">اسم المنتج بالعربية: *</label>
+            <input type="text" id="productFormName" class="form-control" placeholder="مثال: طقم حلل جرانيت 10 قطع" required />
+          </div>
+
+          <div class="form-grid two-cols" style="margin-bottom:1rem;">
+            <div class="form-group">
+              <label class="form-label">القسم / التصنيف: *</label>
+              <select id="productFormCategory" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">السعر الحالي (جنيه): *</label>
+              <input type="number" id="productFormPrice" class="form-control" min="0" step="any" placeholder="0" required />
+            </div>
+          </div>
+
+          <div class="form-grid two-cols" style="margin-bottom:1rem;">
+            <div class="form-group">
+              <label class="form-label">السعر الأصلي قبل الخصم (اختياري):</label>
+              <input type="number" id="productFormOriginalPrice" class="form-control" min="0" step="any" placeholder="اختياري لإظهار نسبة الخصم" />
+            </div>
+            <div class="form-group" style="justify-content:center;">
+              <label class="form-label">حالة توفر المنتج بالمخزن:</label>
+              <label class="switch-label" style="margin-top:0.35rem;">
+                <input type="checkbox" id="productFormStock" class="switch-input" checked />
+                <span class="switch-slider"></span>
+                <span style="font-weight:700; font-size:0.9rem;">متوفر في المخزن</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">رابط صورة المنتج (URL):</label>
+            <input type="url" id="productFormImageUrl" class="form-control" placeholder="https://images.unsplash.com/..." />
+          </div>
+
+          <div id="productImagePreviewBox" style="display:none; margin-bottom:1rem; text-align:center;">
+            <span style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:0.35rem;">معاينة الصورة:</span>
+            <img id="productImagePreview" src="" alt="معاينة" style="max-height:140px; border-radius:var(--radius-md); border:1px solid var(--border-color); object-fit:contain;" />
+          </div>
+
+          <div class="form-group" style="margin-bottom:1.5rem;">
+            <label class="form-label">وصف تفصيلي للمنتج ومواصفاته:</label>
+            <textarea id="productFormDesc" class="form-control" rows="3" placeholder="اكتب وصفاً جذاباً يشمل الخامات، الأبعاد، ومميزات الاستخدام..."></textarea>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+            <button type="button" class="btn btn-secondary" onclick="closeProductModal()">إلغاء</button>
+            <button type="submit" class="btn btn-primary">حفظ بيانات المنتج</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: CSV Import Modal
+       ========================================================================== -->
+  <div id="csvImportModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-dialog" style="max-width:700px;">
+      <button class="modal-close-btn" onclick="closeCsvImportModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div style="padding:1.75rem;">
+        <h3 style="font-size:1.25rem; font-weight:800; margin-bottom:0.5rem; color:var(--text-main);">
+          <i class="fa-solid fa-file-csv" style="color:var(--primary);"></i> استيراد المنتجات عبر ملف CSV
+        </h3>
+        <p style="font-size:0.875rem; color:var(--text-secondary); margin-bottom:1.25rem;">
+          يمكنك استيراد قائمة كاملة من المنتجات بصيغة CSV تدعم اللغة العربية (ترميز UTF-8).
+        </p>
+
+        <div style="background:var(--bg-subtle); border-radius:var(--radius-md); padding:1rem; margin-bottom:1.25rem; font-size:0.85rem;">
+          <strong>ترتيب أعمدة الملف المطلوب:</strong>
+          <code style="display:block; direction:ltr; text-align:left; background:#FFFFFF; padding:0.4rem 0.6rem; border-radius:4px; margin-top:0.35rem; color:var(--primary); font-weight:700;">
+            id,name,category,price,original_price,description,image_url,in_stock
+          </code>
+          <button class="btn btn-secondary btn-sm" onclick="downloadSampleCsv()" style="margin-top:0.6rem;">
+            <i class="fa-solid fa-download"></i> تحميل ملف CSV النموذجي التجريبي (20 منتج)
+          </button>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.25rem;">
+          <label class="form-label">اختر ملف CSV من جهازك:</label>
+          <input type="file" id="csvFileInput" class="form-control" accept=".csv" onchange="handleCsvFileSelect(event)" />
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.25rem;">
+          <label class="form-label">طريقة الاستيراد:</label>
+          <div style="display:flex; gap:1.5rem; margin-top:0.25rem;">
+            <label style="display:inline-flex; align-items:center; gap:0.4rem; cursor:pointer;">
+              <input type="radio" name="csvImportMode" value="append" checked />
+              <span>إضافة للمنتجات الحالية (Append)</span>
+            </label>
+            <label style="display:inline-flex; align-items:center; gap:0.4rem; cursor:pointer;">
+              <input type="radio" name="csvImportMode" value="replace" />
+              <span>استبدال كافة المنتجات الحالية (Replace)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Preview Container -->
+        <div id="csvPreviewContainer" style="display:none; margin-bottom:1.25rem;">
+          <h4 id="csvRowsCount" style="font-size:0.9rem; font-weight:700; color:var(--success); margin-bottom:0.5rem;"></h4>
+          <div class="table-responsive" style="max-height:180px; overflow-y:auto;">
+            <table class="admin-table" style="font-size:0.8rem;">
+              <thead>
+                <tr>
+                  <th>الاسم</th>
+                  <th>القسم</th>
+                  <th>السعر</th>
+                  <th>السعر الأصلي</th>
+                  <th>المخزون</th>
+                </tr>
+              </thead>
+              <tbody id="csvPreviewTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeCsvImportModal()">إلغاء</button>
+          <button id="csvExecuteImportBtn" type="button" class="btn btn-primary" disabled onclick="executeCsvImport()">
+            <i class="fa-solid fa-check"></i> تأكيد الاستيراد الآن
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 3: Category Modal
+       ========================================================================== -->
+  <div id="categoryModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-dialog" style="max-width:450px;">
+      <button class="modal-close-btn" onclick="closeCategoryModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div style="padding:1.5rem;">
+        <h3 id="categoryModalTitle" style="font-size:1.2rem; font-weight:800; margin-bottom:1.25rem;">إضافة قسم جديد</h3>
+
+        <form id="categoryForm" onsubmit="saveCategoryFromForm(event)">
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">اسم القسم: *</label>
+            <input type="text" id="categoryFormName" class="form-control" placeholder="مثال: أدوات المطبخ" required />
+          </div>
+          <div class="form-group" style="margin-bottom:1.5rem;">
+            <label class="form-label">رمز أو إيموجي القسم:</label>
+            <input type="text" id="categoryFormIcon" class="form-control" placeholder="🍳 أو 🧹 أو 🚿" />
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+            <button type="button" class="btn btn-secondary" onclick="closeCategoryModal()">إلغاء</button>
+            <button type="submit" class="btn btn-primary">حفظ القسم</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 4: Banner Slide Modal
+       ========================================================================== -->
+  <div id="bannerModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-dialog" style="max-width:550px;">
+      <button class="modal-close-btn" onclick="closeBannerModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div style="padding:1.5rem;">
+        <h3 id="bannerModalTitle" style="font-size:1.2rem; font-weight:800; margin-bottom:1.25rem;">إضافة شريحة بنر</h3>
+
+        <form id="bannerForm" onsubmit="saveBannerFromForm(event)">
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">العنوان الرئيسي: *</label>
+            <input type="text" id="bannerFormTitle" class="form-control" placeholder="عروض التوفير الكبرى..." required />
+          </div>
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">العنوان الفرعي: *</label>
+            <textarea id="bannerFormSubtitle" class="form-control" rows="2" placeholder="خصومات حصرية وتخفيضات خاصة..." required></textarea>
+          </div>
+          <div class="form-grid two-cols" style="margin-bottom:1.5rem;">
+            <div class="form-group">
+              <label class="form-label">نص الشارة العلوية:</label>
+              <input type="text" id="bannerFormBadge" class="form-control" placeholder="خصم خاص 🔥" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">لون أو تدرج الخلفية (CSS Gradient):</label>
+              <input type="text" id="bannerFormBg" class="form-control" placeholder="linear-gradient(135deg, #1A56DB 0%, #1240A0 100%)" />
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+            <button type="button" class="btn btn-secondary" onclick="closeBannerModal()">إلغاء</button>
+            <button type="submit" class="btn btn-primary">حفظ الشريحة</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Panel Scripts -->
+  <script src="admin.js"></script>
+</body>
+</html>
